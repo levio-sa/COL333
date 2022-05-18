@@ -1,0 +1,64 @@
+Assignment 2, COL333
+Sarthak Singla, Chirag Jain
+
+We modeled the problem as a constraint satisfaction problem of N*D variables, which are of the form Ni_j which is the shift of ith nurse on jth day. Here N is the number of nurses and D is the number of days. The variables represent assignment with the following constraints:
+
+•	The number of nurses assigned morning, afternoon and evening shifts is m, a and e respectively.
+•	A nurse assigned morning or evening shift on a day cannot be assigned morning shift the next day.
+•	Every nurse must be provided rest at least once in a week.
+
+
+Implementational Details
+
+
+
+We modeled the assignment as the assignment of nurses on a day by day basis, i.e. we assign we first assign all nurses on a particular day and then move on to assigning the next day. We assign for a particular day using the asssignment of the immediately preceding day and the rest constraint over the week. Doing so, we maintain the possibility of backtracking over each variable.
+
+Before starting with the recursion, we check for some basic constraints like:
+-> total rest slots for the week(if D>=7) must be more than or equal to the number of nurses, as each nurse requires a rest slot in the week.
+-> rest slots per day must be greater than equal to 0
+-> the rest and afternoon slots must be greater than or equal to the morning slots as nurses assigned morning or evening on previous day cannot be assigned morning on the next day. r+a+e>=m+e implies r+a>=m.
+
+For the day 0 we are hardcoding the values to nurses in the order morning, evening, afternoon and rest, because nurses are independent of each other in Part(a) and their schedules can be exchanged. For Part(b), morning or evening is more preferable and sorting allows to take care of discrepancies(continued in Part(b) description).
+
+
+While the assignment of any nurse, if we see that the number of rest slots left for the week is less than the number of nurses that require rest, we backtrack.
+
+Part(a)
+
+We pick nurses in the order of most constrained for the day and try values in the order of least constrained value for the nurse.
+
+Variable Ordering
+For a regular day,
+	The variable order depends on previous day slots as -> morning/evening afternoon rest.
+	Within each group we also order based on whether the nurse has received rest in the week. Nurses requiring rest come first.
+
+For week's last day,
+	The variable order brings all the nurses requiring rest in the week first.
+	Within the rested and not rested nurses, the order is morning/evening afternoon rest.
+
+Value Ordering
+For week's last day for a nurse not given rest this week,
+	Give rest only
+
+Otherwise,
+	First find the domain
+	Order is rest/afternoon morning evening
+	Between rest afternoon the order is rest first if nurse is not rested in the week and vice-versa
+
+If we find a solution we dump to file and exit
+
+Part(b)
+
+Here we reduced problem by hcf(N,S,m,a,e,r) initially so that we explore more cases.
+
+For senior nurses(first S nurses),
+	We assign mornign/evening preferably on the first day.
+	For other days, we prefer morning and evening.
+
+For junior nurses,
+	Value order remains same as Part(a).
+
+Variable Ordering is same as in Part(a).
+
+If we find a solution, we sort it to get the best nurses as the senior nurses(to take care of any discrepancies). We dump it if its better. Also, we continue searching to find better solutions and dump them as they are found.
